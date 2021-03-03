@@ -86,10 +86,15 @@ class _HomePageState extends State<HomePage> {
                 activeBackgroundColor: dark,
                 firstTime: TimeOfDay(hour: 8, minute: 00),
                 lastTime: TimeOfDay(hour: 20, minute: 00),
-                initialRange: _timeRange,
-                timeStep: 10,
+                timeStep: 30,
                 timeBlock: 30,
                 onRangeCompleted: (range) => setState(() => _timeRange = range),
+                disabledTimeRanges: [
+                  TimeRangeResult(TimeOfDay(hour: 8, minute: 30),
+                      TimeOfDay(hour: 9, minute: 30)),
+                  TimeRangeResult(TimeOfDay(hour: 11, minute: 30),
+                      TimeOfDay(hour: 13, minute: 30))
+                ],
               ),
               SizedBox(height: 30),
               if (_timeRange != null)
@@ -98,10 +103,11 @@ class _HomePageState extends State<HomePage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      Text(
-                        'Selected Range: ${_timeRange.start.format(context)} - ${_timeRange.end.format(context)}',
-                        style: TextStyle(fontSize: 20, color: dark),
-                      ),
+                      if (_timeRange.start != null && _timeRange.end != null)
+                        Text(
+                          'Selected Range: ${_timeRange.start.format(context)} - ${_timeRange.end.format(context)}',
+                          style: TextStyle(fontSize: 20, color: dark),
+                        ),
                       SizedBox(height: 20),
                       MaterialButton(
                         child: Text('Default'),
