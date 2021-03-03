@@ -10,12 +10,14 @@ class TimeButton extends StatefulWidget {
   final Color activeBackgroundColor;
   final TextStyle textStyle;
   final TextStyle activeTextStyle;
+  final bool disabled;
 
   const TimeButton(
       {Key key,
       this.time,
       this.onSelect,
       this.value = false,
+      this.disabled = false,
       this.borderColor,
       this.activeBorderColor,
       this.backgroundColor,
@@ -46,23 +48,31 @@ class _TimeButtonState extends State<TimeButton> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        if (!isSelected) {
-          isSelected = true;
-          widget.onSelect(widget.time);
-        }
-        setState(() {});
-      },
+      onTap: widget.disabled
+          ? null
+          : () {
+              if (!isSelected) {
+                isSelected = true;
+                widget.onSelect(widget.time);
+              }
+              setState(() {});
+            },
       child: Container(
         decoration: BoxDecoration(
-          color: isSelected
-              ? widget.activeBackgroundColor ?? Theme.of(context).primaryColor
-              : widget.backgroundColor ?? Theme.of(context).backgroundColor,
+          color: widget.disabled
+              ? Colors.grey
+              : isSelected
+                  ? widget.activeBackgroundColor ??
+                      Theme.of(context).primaryColor
+                  : widget.backgroundColor ?? Theme.of(context).backgroundColor,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-              color: isSelected
-                  ? widget.activeBorderColor ?? Theme.of(context).primaryColor
-                  : widget.borderColor ?? Theme.of(context).primaryColor),
+              color: widget.disabled
+                  ? Colors.grey
+                  : isSelected
+                      ? widget.activeBorderColor ??
+                          Theme.of(context).primaryColor
+                      : widget.borderColor ?? Theme.of(context).primaryColor),
         ),
         child: Center(
           child: Padding(

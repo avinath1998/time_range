@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:time_range/time_button.dart';
 import 'time_of_day_extension.dart';
+import 'time_range.dart';
 
 class TimeList extends StatefulWidget {
   final TimeOfDay firstTime;
   final TimeOfDay lastTime;
   final TimeOfDay initialTime;
+  final List<TimeRangeResult> disabledTimes;
   final int timeStep;
   final double padding;
   final void Function(TimeOfDay hour) onHourSelected;
@@ -30,6 +32,7 @@ class TimeList extends StatefulWidget {
     this.activeBackgroundColor,
     this.textStyle,
     this.activeTextStyle,
+    this.disabledTimes,
   })  : assert(firstTime != null && lastTime != null),
         assert(
             lastTime.after(firstTime), 'lastTime not can be before firstTime'),
@@ -49,6 +52,7 @@ class _TimeListState extends State<TimeList> {
   @override
   void initState() {
     super.initState();
+
     _initialData();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _animateScroll(hours.indexOf(widget.initialTime));
@@ -73,8 +77,9 @@ class _TimeListState extends State<TimeList> {
 
   void _loadHours() {
     hours.clear();
-    var hour =
+    TimeOfDay hour =
         TimeOfDay(hour: widget.firstTime.hour, minute: widget.firstTime.minute);
+
     while (hour.before(widget.lastTime)) {
       hours.add(hour);
       hour = hour.add(minutes: widget.timeStep);
@@ -93,10 +98,14 @@ class _TimeListState extends State<TimeList> {
         itemExtent: itemExtent,
         itemBuilder: (BuildContext context, int index) {
           final hour = hours[index];
+          final disabledRange = widget.disabledTimes.firstWhere(
+              (element) => element.isTimeWithin(hour),
+              orElse: () => null);
 
           return Padding(
             padding: const EdgeInsets.only(right: 8.0),
             child: TimeButton(
+              disabled: disabledRange != null,
               borderColor: widget.borderColor,
               activeBorderColor: widget.activeBorderColor,
               backgroundColor: widget.backgroundColor,
@@ -104,8 +113,10 @@ class _TimeListState extends State<TimeList> {
               textStyle: widget.textStyle,
               activeTextStyle: widget.activeTextStyle,
               time: hour.format(context),
-              value: _selectedHour == hour,
-              onSelect: (_) => _selectHour(index, hour),
+              value: (_selectedHour == hour),
+              onSelect: (_) {
+                _selectHour(index, hour);
+              },
             ),
           );
         },

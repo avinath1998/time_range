@@ -22,6 +22,7 @@ class TimeRange extends StatefulWidget {
   final Color activeBackgroundColor;
   final TextStyle textStyle;
   final TextStyle activeTextStyle;
+  final List<TimeRangeResult> disabledTimeRanges;
 
   TimeRange({
     Key key,
@@ -40,6 +41,7 @@ class TimeRange extends StatefulWidget {
     this.activeBackgroundColor,
     this.textStyle,
     this.activeTextStyle,
+    this.disabledTimeRanges,
   })  : assert(timeBlock != null),
         assert(firstTime != null && lastTime != null),
         assert(
@@ -99,6 +101,7 @@ class _TimeRangeState extends State<TimeRange> {
           activeBackgroundColor: widget.activeBackgroundColor,
           textStyle: widget.textStyle,
           activeTextStyle: widget.activeTextStyle,
+          disabledTimes: widget.disabledTimeRanges,
         ),
         if (widget.toTitle != null)
           Padding(
@@ -121,26 +124,46 @@ class _TimeRangeState extends State<TimeRange> {
           activeBackgroundColor: widget.activeBackgroundColor,
           textStyle: widget.textStyle,
           activeTextStyle: widget.activeTextStyle,
+          disabledTimes: widget.disabledTimeRanges,
         ),
       ],
     );
   }
 
   void _startHourChanged(TimeOfDay hour) {
-    setState(() => _startHour = hour);
-    if (_endHour != null) {
-      if(_endHour.inMinutes() <= _startHour.inMinutes() || (_endHour.inMinutes() - _startHour.inMinutes()).remainder(widget.timeBlock) != 0){
-        _endHour = null;
-        widget.onRangeCompleted(null);
-      } else {
-        widget.onRangeCompleted(TimeRangeResult(_startHour, _endHour));
-      }
-    }
+    // setState(() => _startHour = hour);
+    setState(() {
+      _startHour = hour;
+      _endHour = null;
+    });
+    // if (_endHour != null) {
+    //   if (_endHour.inMinutes() <= _startHour.inMinutes() ||
+    //       (_endHour.inMinutes() - _startHour.inMinutes())
+    //               .remainder(widget.timeBlock) !=
+    //           0) {
+    //     _endHour = null;
+    //     widget.onRangeCompleted(null);
+    //   } else {
+    //     widget.onRangeCompleted(TimeRangeResult(_startHour, _endHour));
+    //   }
+    // }
   }
 
   void _endHourChanged(TimeOfDay hour) {
     setState(() => _endHour = hour);
-    widget.onRangeCompleted(TimeRangeResult(_startHour, _endHour));
+    widget.disabledTimeRanges.forEach((disabledRange) {
+      if (_startHour == null || _endHour == null) return;
+      final updatedRange = TimeRangeResult(_startHour, _endHour);
+      if (updatedRange.isRangeWithin(disabledRange)) {
+        setState(() => _startHour = null);
+        print("it is within");
+      } else {
+        print("it is not within");
+      }
+    });
+    if (_startHour != null && _endHour != null) {
+      widget.onRangeCompleted(TimeRangeResult(_startHour, _endHour));
+    }
   }
 }
 
@@ -149,4 +172,15 @@ class TimeRangeResult {
   final TimeOfDay end;
 
   TimeRangeResult(this.start, this.end);
+}
+
+extension TimeRangeResultExtension on TimeRangeResult {
+  bool isTimeWithin(TimeOfDay timeOfDay) {
+    return timeOfDay.inMinutes() >= this.start.inMinutes() &&
+        timeOfDay.inMinutes() < this.end.inMinutes();
+  }
+
+  bool isRangeWithin(TimeRangeResult range) {
+    return this.start.before(range.start) && this.end.after(range.start);
+  }
 }
