@@ -156,9 +156,6 @@ class _TimeRangeState extends State<TimeRange> {
       final updatedRange = TimeRangeResult(_startHour, _endHour);
       if (updatedRange.isRangeWithin(disabledRange)) {
         setState(() => _startHour = null);
-        print("it is within");
-      } else {
-        print("it is not within");
       }
     });
     if (_startHour != null && _endHour != null) {
