@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart' show IterableExtension;
 import 'package:flutter/material.dart';
 import 'package:time_range/time_button.dart';
 import 'time_of_day_extension.dart';
@@ -6,25 +7,25 @@ import 'time_range.dart';
 class TimeList extends StatefulWidget {
   final TimeOfDay firstTime;
   final TimeOfDay lastTime;
-  final TimeOfDay initialTime;
-  final List<TimeRangeResult> disabledTimes;
+  final TimeOfDay? initialTime;
+  final List<TimeRangeResult>? disabledTimes;
   final int timeStep;
-  final double padding;
+  final double? padding;
   final void Function(TimeOfDay hour) onHourSelected;
-  final Color borderColor;
-  final Color activeBorderColor;
-  final Color backgroundColor;
-  final Color activeBackgroundColor;
-  final TextStyle textStyle;
-  final TextStyle activeTextStyle;
+  final Color? borderColor;
+  final Color? activeBorderColor;
+  final Color? backgroundColor;
+  final Color? activeBackgroundColor;
+  final TextStyle? textStyle;
+  final TextStyle? activeTextStyle;
 
   TimeList({
-    Key key,
+    Key? key,
     this.padding,
-    @required this.timeStep,
-    @required this.firstTime,
-    @required this.lastTime,
-    @required this.onHourSelected,
+    required this.timeStep,
+    required this.firstTime,
+    required this.lastTime,
+    required this.onHourSelected,
     this.initialTime,
     this.borderColor,
     this.activeBorderColor,
@@ -33,10 +34,8 @@ class TimeList extends StatefulWidget {
     this.textStyle,
     this.activeTextStyle,
     this.disabledTimes,
-  })  : assert(firstTime != null && lastTime != null),
-        assert(
+  })  : assert(
             lastTime.after(firstTime), 'lastTime not can be before firstTime'),
-        assert(onHourSelected != null),
         super(key: key);
 
   @override
@@ -46,15 +45,15 @@ class TimeList extends StatefulWidget {
 class _TimeListState extends State<TimeList> {
   final ScrollController _scrollController = ScrollController();
   final double itemExtent = 90;
-  TimeOfDay _selectedHour;
-  List<TimeOfDay> hours = [];
+  TimeOfDay? _selectedHour;
+  List<TimeOfDay?> hours = [];
 
   @override
   void initState() {
     super.initState();
 
     _initialData();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
       _animateScroll(hours.indexOf(widget.initialTime));
     });
   }
@@ -93,14 +92,13 @@ class _TimeListState extends State<TimeList> {
       child: ListView.builder(
         controller: _scrollController,
         scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.only(left: widget.padding),
+        padding: EdgeInsets.only(left: widget.padding!),
         itemCount: hours.length,
         itemExtent: itemExtent,
         itemBuilder: (BuildContext context, int index) {
-          final hour = hours[index];
-          final disabledRange = widget.disabledTimes.firstWhere(
-              (element) => element.isTimeWithin(hour),
-              orElse: () => null);
+          final hour = hours[index]!;
+          final disabledRange = widget.disabledTimes!
+              .firstWhereOrNull((element) => element.isTimeWithin(hour));
 
           return Padding(
             padding: const EdgeInsets.only(right: 8.0),

@@ -11,25 +11,25 @@ class TimeRange extends StatefulWidget {
   final int timeBlock;
   final TimeOfDay firstTime;
   final TimeOfDay lastTime;
-  final Widget fromTitle;
-  final Widget toTitle;
+  final Widget? fromTitle;
+  final Widget? toTitle;
   final double titlePadding;
   final void Function(TimeRangeResult range) onRangeCompleted;
-  final TimeRangeResult initialRange;
-  final Color borderColor;
-  final Color activeBorderColor;
-  final Color backgroundColor;
-  final Color activeBackgroundColor;
-  final TextStyle textStyle;
-  final TextStyle activeTextStyle;
-  final List<TimeRangeResult> disabledTimeRanges;
+  final TimeRangeResult? initialRange;
+  final Color? borderColor;
+  final Color? activeBorderColor;
+  final Color? backgroundColor;
+  final Color? activeBackgroundColor;
+  final TextStyle? textStyle;
+  final TextStyle? activeTextStyle;
+  final List<TimeRangeResult>? disabledTimeRanges;
 
   TimeRange({
-    Key key,
-    @required this.timeBlock,
-    @required this.onRangeCompleted,
-    @required this.firstTime,
-    @required this.lastTime,
+    Key? key,
+    required this.timeBlock,
+    required this.onRangeCompleted,
+    required this.firstTime,
+    required this.lastTime,
     this.timeStep = 60,
     this.fromTitle,
     this.toTitle,
@@ -42,11 +42,8 @@ class TimeRange extends StatefulWidget {
     this.textStyle,
     this.activeTextStyle,
     this.disabledTimeRanges,
-  })  : assert(timeBlock != null),
-        assert(firstTime != null && lastTime != null),
-        assert(
+  })  : assert(
             lastTime.after(firstTime), 'lastTime not can be before firstTime'),
-        assert(onRangeCompleted != null),
         super(key: key);
 
   @override
@@ -54,8 +51,8 @@ class TimeRange extends StatefulWidget {
 }
 
 class _TimeRangeState extends State<TimeRange> {
-  TimeOfDay _startHour;
-  TimeOfDay _endHour;
+  TimeOfDay? _startHour;
+  TimeOfDay? _endHour;
 
   @override
   void initState() {
@@ -71,8 +68,8 @@ class _TimeRangeState extends State<TimeRange> {
 
   void setRange() {
     if (widget.initialRange != null) {
-      _startHour = widget.initialRange.start;
-      _endHour = widget.initialRange.end;
+      _startHour = widget.initialRange!.start;
+      _endHour = widget.initialRange!.end;
     }
   }
 
@@ -112,7 +109,7 @@ class _TimeRangeState extends State<TimeRange> {
         TimeList(
           firstTime: _startHour == null
               ? widget.firstTime.add(minutes: widget.timeBlock)
-              : _startHour.add(minutes: widget.timeBlock),
+              : _startHour!.add(minutes: widget.timeBlock),
           lastTime: widget.lastTime,
           initialTime: _endHour,
           timeStep: widget.timeBlock,
@@ -151,7 +148,7 @@ class _TimeRangeState extends State<TimeRange> {
 
   void _endHourChanged(TimeOfDay hour) {
     setState(() => _endHour = hour);
-    widget.disabledTimeRanges.forEach((disabledRange) {
+    widget.disabledTimeRanges!.forEach((disabledRange) {
       if (_startHour == null || _endHour == null) return;
       final updatedRange = TimeRangeResult(_startHour, _endHour);
       if (updatedRange.isRangeWithin(disabledRange)) {
@@ -165,19 +162,19 @@ class _TimeRangeState extends State<TimeRange> {
 }
 
 class TimeRangeResult {
-  final TimeOfDay start;
-  final TimeOfDay end;
+  final TimeOfDay? start;
+  final TimeOfDay? end;
 
   TimeRangeResult(this.start, this.end);
 }
 
 extension TimeRangeResultExtension on TimeRangeResult {
   bool isTimeWithin(TimeOfDay timeOfDay) {
-    return timeOfDay.inMinutes() >= this.start.inMinutes() &&
-        timeOfDay.inMinutes() < this.end.inMinutes();
+    return timeOfDay.inMinutes() >= this.start!.inMinutes() &&
+        timeOfDay.inMinutes() < this.end!.inMinutes();
   }
 
   bool isRangeWithin(TimeRangeResult range) {
-    return this.start.before(range.start) && this.end.after(range.start);
+    return this.start!.before(range.start!) && this.end!.after(range.start!);
   }
 }
